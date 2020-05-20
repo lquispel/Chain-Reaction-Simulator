@@ -17,11 +17,9 @@ The Chain Reaction game simulator has been developed in python language with the
 
 #### How it Works
 
-Working Model
 ![](img/workingmodel.png "split")
 
 
-Splitting
 ![](img/valency.png "boom!")
 
 
