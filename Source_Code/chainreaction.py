@@ -48,29 +48,6 @@ rows = int(height / grid_blocks)
 the_grid = []
 
 
-# After Game over terminate the Game Window
-def close():
-    pygame.quit()
-    sys.exit()
-
-
-# for Each position in Grid
-class my_spot():
-    def __init__(self):
-        self.color = border
-        self.neighbors = []
-        self.noAtoms = 0
-
-    def neighbour_append(self, i, j):
-        if i > 0:
-            self.neighbors.append(the_grid[i - 1][j])
-        if i < rows - 1:
-            self.neighbors.append(the_grid[i + 1][j])
-        if j < cols - 1:
-            self.neighbors.append(the_grid[i][j + 1])
-        if j > 0:
-            self.neighbors.append(the_grid[i][j - 1])
-
 
 # Initializing the_grid with null player account
 def initialize_the_grid():
@@ -93,6 +70,25 @@ def initialize_the_grid():
     for i in range(cols):
         for j in range(rows):
             the_grid[i][j].neighbour_append(i, j)
+
+
+# for Each position in Grid
+class my_spot():
+    def __init__(self):
+        self.color = border
+        self.neighbors = []
+        self.noAtoms = 0
+
+    def neighbour_append(self, i, j):
+        if i > 0:
+            self.neighbors.append(the_grid[i - 1][j])
+        if i < rows - 1:
+            self.neighbors.append(the_grid[i + 1][j])
+        if j < cols - 1:
+            self.neighbors.append(the_grid[i][j + 1])
+        if j > 0:
+            self.neighbors.append(the_grid[i][j - 1])
+
 
 
 #plotting the grid in pygame plot
@@ -211,6 +207,12 @@ def did_win():
     return 9999
 
 
+# After Game over terminate the Game Window
+def close():
+    pygame.quit()
+    sys.exit()
+
+    
 # Main Loop
 def re_game():
     initialize_the_grid()
