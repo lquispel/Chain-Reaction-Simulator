@@ -4,6 +4,9 @@ from math import *
 
 # Initializing the Game grid
 pygame.init()
+if not sys.warnoptions:
+    import warnings
+    warnings.simplefilter("ignore")
 
 width = 400
 height = 400
