@@ -1,6 +1,9 @@
 import pygame
 import sys
 from math import *
+import score
+from ai import Atomic_Node
+from pgameplayer.minimax_tree import *
 
 # Initializing the Game grid
 pygame.init()
@@ -28,17 +31,16 @@ playerColor = [red, green, violet, yellow]
 
 font = pygame.font.SysFont("Times New Roman", 30)
 
-grid_blocks = 40
+grid_blocks = 36
 
 # print("\n\n\t\tWELCOME TO CHAIN REACTION")
 # player_count = int(input("\n\nEnter number of players between 2 to 4:\t"))
 
-pygame.display.set_caption("Chain Reaction AI" )
-
+pygame.display.set_caption("Chain Reaction AI - Atomic Intelligence ! " )
+player_count = 2
 score_count = []
 for i in range(player_count):
     score_count.append(0)
-
 players = []
 for i in range(player_count):
     players.append(playerColor[i])
@@ -159,18 +161,7 @@ def split_boom(cell, color):
 # Winning condition check
 def check_player_game():
     global score_count
-    playerScore = []
-    for i in range(player_count
-):
-        playerScore.append(0)
-    for i in range(cols):
-        for j in range(rows):
-            for k in range(player_count
-        ):
-                if the_grid[i][j].color == players[k]:
-                    playerScore[k] += the_grid[i][j].noAtoms
-    score_count = playerScore[:]
-
+    score_count= score.get_scores(the_grid,player_count,playerColor)[:]
 
 # GAME OVER
 def gameOver(playerIndex):
@@ -218,13 +209,9 @@ def close():
 def re_game():
     initialize_the_grid()
     loop = True
-
     turns = 0
-
     currentPlayer = 0
-
     vibrate = .5
-
     while loop:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -242,9 +229,13 @@ def re_game():
                     currentPlayer += 1
                     if currentPlayer >= player_count:
                         currentPlayer = 0
+                # let the AI do its thing
+                if currentPlayer == 1:
+                    node = Atomic_Node(the_grid,playerColor,0)
+                    move = depth_limited_minimax(node,3,True)
+                    print(move)
                 if turns >= player_count:
                     check_player_game()
-                # let the AI do its thing
 
         display.fill(background)
         # Vibrate the Atoms in their Cells
