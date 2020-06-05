@@ -30,10 +30,10 @@ font = pygame.font.SysFont("Times New Roman", 30)
 
 grid_blocks = 40
 
-print("\n\n\t\tWELCOME TO CHAIN REACTION")
-player_count = int(input("\n\nEnter number of players between 2 to 4:\t"))
+# print("\n\n\t\tWELCOME TO CHAIN REACTION")
+# player_count = int(input("\n\nEnter number of players between 2 to 4:\t"))
 
-pygame.display.set_caption("Chain Reaction %d Player" % player_count)
+pygame.display.set_caption("Chain Reaction AI" )
 
 score_count = []
 for i in range(player_count):
@@ -49,8 +49,6 @@ cols = int(width / grid_blocks)
 rows = int(height / grid_blocks)
 
 the_grid = []
-
-
 
 # Initializing the_grid with null player account
 def initialize_the_grid():
@@ -246,6 +244,7 @@ def re_game():
                         currentPlayer = 0
                 if turns >= player_count:
                     check_player_game()
+                # let the AI do its thing
 
         display.fill(background)
         # Vibrate the Atoms in their Cells
