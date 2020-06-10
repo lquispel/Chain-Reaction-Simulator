@@ -1,10 +1,15 @@
 from pgameplayer import minimax_tree
-import score
+from board import Board
+import copy
 
 class Atomic_Node(minimax_tree.Node):
 
-    def __init__(self,board,colors,difficulty):
-        self.state = board
+    def __init__(self,board,colors,difficulty=0):
+        self.state = Board(board._cols,board._rows,colors)
+        for i in range(board._cols):
+            for j in range(board._rows):
+                self.state.set_cell_occupation(i,j,board.get_cell_occupation(i,j))
+                self.state.set_cell_color(i,j,board.get_cell_color(i,j))
         self.player = True
         self.value = None
         self.best_move = None
@@ -14,30 +19,41 @@ class Atomic_Node(minimax_tree.Node):
     def set_difficulty(self,difficulty):
         self.difficulty = difficulty
 
-    def is_leaf(self):
-        # checks if node is either a win, loss or draw.
-        # :return: boolean
-        player_scores = score.get_scores(self.state,2,self.player_colors)
+    def print_board(self):
+        self.state.print_board()
+
+    def copy_board(self,oboard):
+        tboard = Board(self.state._cols,self.state._rows,self.player_colors)
+        for i in range(self.state._cols):
+            for j in range(self.state._rows):
+                tboard.set_cell_occupation(i,j,oboard.get_cell_occupation(i,j))
+                tboard.set_cell_color(i,j,oboard.get_cell_color(i,j))
+        return tboard
+
+    def get_player_color(self,player):
+        if player:
+            return self.player_colors[1]
+        else:
+            return self.player_colors[0]
+
+    def if_leaf(self):
+        player_scores = self.state.get_scores()
         for score in player_scores:
             if score == 0:
                 return True
         return False
 
     def generate_moves(self,player):
-        # Generates list of valid possible moves
-        # :param player: Boolean. x or o
-        # :return: list
-        current_board  = copy.copy(self.state)
         next_state = []
-        for i in range (len(current_board)):
-            for j in range(len(current_board[i])):
-                if current_board[i][j].color == chainreaction.playerColor[player] or current_board[i][j].noAtoms == 0:
-                    next_state.append(current_board[i][j])
+        for i in range (self.state._cols):
+            for j in range(self.state._rows):
+                new_board = self.copy_board(self.state)
+                if new_board.move(i,j,self.get_player_color(player)):
+                    next_state.append(Atomic_Node(new_board,self.player_colors))
         return next_state
 
     def evaluate(self):
-        player_scores = score.get_scores(self.state,2,self.player_colors)
-        # check if someone won self.value = minimax_tree.PINF
+        player_scores = self.state.get_scores()
         if player_scores[1] == 0:
             self.value = minimax_tree.NINF
         elif player_scores[0] == 0:
@@ -46,9 +62,4 @@ class Atomic_Node(minimax_tree.Node):
             if not self.difficulty:
                 # just count the atoms.
                 self.value = player_scores[1]
-
-
-
-
-
-
+        return self.value
