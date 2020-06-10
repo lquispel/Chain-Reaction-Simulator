@@ -1,4 +1,4 @@
-import copy
+import sys
 
 class Cell():
 
@@ -51,15 +51,15 @@ class Board():
         if occ != 0:
             if self.get_cell_color(i,j) != color:
                 return False
-        self.set_cell_occupation(i,j,occ + 1)
+        occ += 1
+        self.set_cell_occupation(i,j,occ)
         self.set_cell_color(i,j,color)
-        if occ >= len(self._board[i][j].neighbors):
+        if occ == len(self._board[i][j].neighbors):
+            self.set_cell_occupation(i,j,0)
             self._explode(self._board[i][j], color)
         return True
 
     def _explode(self,cell,color):
-        cell.nr_atoms =
-        # TODO: get rid of neighbours
         for i in range(len(cell.neighbors)):
             cell.neighbors[i].nr_atoms += 1
             cell.neighbors[i].color = color
@@ -87,9 +87,9 @@ class Board():
 
     def print_board(self):
         ret = ""
-        for i in range(self._cols):
+        for j in range(self._rows):
             ret += "|| "
-            for j in range(self._rows):
+            for i in range(self._cols):
                 occ = 0
                 for n in range(len(self._player_colors)):
                     if self._board[i][j].color == self._player_colors[n]:
@@ -97,7 +97,7 @@ class Board():
                         ret += "p" + str(n) + ":" + str(self._board[i][j].nr_atoms)
                         break
                 if occ == 0:
-                    ret += "    "
+                    ret += " " + str(i)+str(j) + " "
                 ret += "|"
             ret += "|\n"
         print(ret)
