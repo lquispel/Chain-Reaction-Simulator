@@ -1,4 +1,4 @@
-# Chain-Reaction-Simulator
+# Chain-Reaction-Simulator, aka Exploding Atoms
 
 
 ## What is Chain Reaction ?
