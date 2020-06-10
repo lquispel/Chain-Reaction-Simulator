@@ -9,13 +9,13 @@ class Cell():
 
     def set_neighbours(self,board,i,j,cols,rows):
         if i > 0:
-            self.neighbors.append(board[i-1][j])
+            self.neighbors.append((i-1,j))
         if i < rows -1:
-            self.neighbors.append(board[i+1][j])
+            self.neighbors.append((i+1,j))
         if j > 0:
-            self.neighbors.append((board[i][j-1]))
+            self.neighbors.append((i,j-1))
         if j < cols - 1:
-            self.neighbors.append(board[i][j+1])
+            self.neighbors.append((i,j+1))
 
 class Board():
 
@@ -25,8 +25,9 @@ class Board():
         self._cols = cols
         self._rows = rows
         self._player_colors = colors
-        self.nr_players = player_count
+        self._nr_players = player_count
         self._board = [[] for _ in range(cols)]
+        self._moves = []
         for i in range(self._cols):
             for j in range(self._rows):
                 self._board[i].append(Cell(Board.BORDER))
@@ -47,6 +48,8 @@ class Board():
         self._board[x_pos][y_pos].nr_atoms = occupation
 
     def move(self,i,j,color):
+        if i < 0 or j < 0 or i >= self._cols or j >= self._rows:
+            return False
         occ = self.get_cell_occupation(i,j)
         if occ != 0:
             if self.get_cell_color(i,j) != color:
@@ -54,21 +57,26 @@ class Board():
         occ += 1
         self.set_cell_occupation(i,j,occ)
         self.set_cell_color(i,j,color)
-        if occ == len(self._board[i][j].neighbors):
+        m = [i,j]
+        self._moves.append(m)
+        if occ >= len(self._board[i][j].neighbors):
+            self.set_cell_color(i, j, Board.BORDER)
             self.set_cell_occupation(i,j,0)
             self._explode(self._board[i][j], color)
         return True
 
     def _explode(self,cell,color):
-        for i in range(len(cell.neighbors)):
-            cell.neighbors[i].nr_atoms += 1
-            cell.neighbors[i].color = color
-            if cell.neighbors[i].nr_atoms >= len(cell.neighbors[i].neighbors):
-                self._explode(cell.neighbors[i], color)
+        for (x,y) in cell.neighbors:
+            self.set_cell_occupation(x,y,self.get_cell_occupation(x,y) + 1)
+            self.set_cell_color(x,y,color)
+            if self.get_cell_occupation(x,y) >= len(self._board[x][y].neighbors):
+                self.set_cell_color(x, y, Board.BORDER)
+                self.set_cell_occupation(x, y, 0)
+                self._explode(self._board[x][y], color)
 
     def get_scores(self):
         scores = []
-        for i in range(self.nr_players):
+        for i in range(self._nr_players):
             scores.append(0)
         occupation = self.get_occupied_cells()
         for (i,j) in occupation:
@@ -97,7 +105,7 @@ class Board():
                         ret += "p" + str(n) + ":" + str(self._board[i][j].nr_atoms)
                         break
                 if occ == 0:
-                    ret += " " + str(i)+str(j) + " "
+                    ret += "    "
                 ret += "|"
             ret += "|\n"
         print(ret)

@@ -141,20 +141,20 @@ def re_game():
                 i = int(x / grid_blocks)
                 j = int(y / grid_blocks)
                 if the_grid.move(i,j,playerColor[currentPlayer]):
-                    print("Player Move: " + str(i) + "," + str(j))
+                    print("\nPlayer Move: " + str(i) + "," + str(j))
                     display_current_grid()
                     currentPlayer += 1
                     if currentPlayer == 1:
                         if turns > 0:
+                            the_grid.print_board()
                             node = Atomic_Node(the_grid, playerColor)
-                            move, eval = depth_limited_minimax(node, 1, True)
-                            for i in range(cols-1):
-                                for j in range(rows-1):
-                                    if the_grid.get_cell_occupation(i,j) != move.get_cell_occupation(i,j):
-                                        break
+                            move, eval = depth_limited_minimax(node, 3, True)
+                            i = move._moves[0][0]
+                            j = move._moves[0][1]
                             the_grid.move(i,j,playerColor[currentPlayer])
                             currentPlayer += 1
                             print("AI Move: " + str(i) + "," + str(j) + "  value:" + str(eval))
+                            move.print_board()
                         else:
                             if not the_grid.move(0,0,playerColor[currentPlayer]):
                                 the_grid.move(cols-1,rows-1,playerColor[currentPlayer])

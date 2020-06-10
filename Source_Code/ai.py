@@ -6,6 +6,7 @@ class Atomic_Node(minimax_tree.Node):
 
     def __init__(self,board,colors,difficulty=0):
         self.state = Board(board._cols,board._rows,colors)
+        self.state._moves = board._moves
         for i in range(board._cols):
             for j in range(board._rows):
                 self.state.set_cell_occupation(i,j,board.get_cell_occupation(i,j))
