@@ -95,6 +95,16 @@ def display_current_grid(vibrate=1):
                 x = r + (d / 2) * cos(radians(angle - 90)) + grid_blocks / 2 - d / 2
                 y = c + (d / 2) * sin(radians(angle - 90)) + 5
                 pygame.draw.ellipse(display, the_grid.get_cell_color(i,j), (x - vibrate, y, d, d))
+            elif the_grid.get_cell_occupation(i, j) == 4:
+                pygame.draw.ellipse(display, the_grid.get_cell_color(i, j),
+                                    (r + 5, c + grid_blocks / 2 - d / 2 - vibrate, d, d))
+                pygame.draw.ellipse(display, the_grid.get_cell_color(i, j),
+                                    (r + d / 2 + grid_blocks / 2 - d / 2 + vibrate, c + grid_blocks / 2 - d / 2, d, d))
+                pygame.draw.ellipse(display, the_grid.get_cell_color(i, j),
+                                    (r + 5, c + grid_blocks / 2 - vibrate, d, d))
+                pygame.draw.ellipse(display, the_grid.get_cell_color(i, j),
+                                    (r + d / 2 + grid_blocks / 2 - d / 2 + vibrate, c + grid_blocks / 2 - vibrate, d, d))
+
     pygame.display.update()
 
 # game over, show winning player
@@ -163,7 +173,7 @@ def ai_move():
 def re_game():
     global the_grid, players, player_count, turns, lost_count
     if player_count == 1:
-        # need to give te ai a player slot
+        # need to give the ai a player slot
         the_grid = Drawing_Board(cols, rows, playerColor, 2)
         for i in range(2):
             players.append(playerColor[i])
