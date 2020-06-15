@@ -131,6 +131,28 @@ def close():
     pygame.quit()
     sys.exit()
 
+def check_win():
+    scores = the_grid.get_score_list()
+    loosers = 0
+    for i in range(player_count):
+        if scores[i] == 0:
+            lost_count[i] == 1
+            loosers += 1
+    if player_count == 1:
+        if lost_count[0] == 1:
+            gameOver(1)
+            return True
+        if lost_count[1] == 1:
+            gameOver(0)
+            return True
+    else:
+        if loosers == player_count - 1:
+            for i in range(player_count):
+                if lost_count[i] != 1:
+                    gameOver(i)
+                    return True
+    return False
+
 # welcome players and select mode
 def welcome_players():
     global player_count
@@ -204,10 +226,12 @@ def re_game():
                     display_current_grid()
                     currentPlayer += 1
                     pygame.time.wait(2000)
-                    if player_count == 1:
-                        if currentPlayer == AI_PLAYER:
-                            ai_move()
-                            currentPlayer += 1
+                    if not check_win():
+                        if player_count == 1:
+                            if currentPlayer == AI_PLAYER:
+                                ai_move()
+                                check_win()
+                                currentPlayer += 1
                     if currentPlayer >= player_count:
                             currentPlayer = 0
                             turns += 1
@@ -216,23 +240,6 @@ def re_game():
         # Vibrate the Atoms in their Cells
         vibrate *= -1
         display_current_grid(vibrate)
-        if turns > 1:
-            scores = the_grid.get_score_list()
-            loosers = 0
-            for i in range(player_count):
-                if scores[i] == 0:
-                    lost_count[i] == 1
-                    loosers += 1
-            if player_count == 1:
-                if lost_count[0] == 1:
-                    gameOver(1)
-                if lost_count[1] == 1:
-                    gameOver(0)
-            else:
-                if loosers == player_count-1:
-                    for i in range(player_count):
-                        if lost_count[i] != 1:
-                            gameOver(i)
         clock.tick(20)
 
 def main():

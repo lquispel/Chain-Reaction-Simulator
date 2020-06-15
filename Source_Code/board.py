@@ -79,8 +79,8 @@ class Board():
             self._board[n][m].nr_atoms += 1
         # we want to stop recursion when we have a winner
         not_won_yet = True
-        for colour in self._player_colors:
-            if self._scores[colour] == 0:
+        for player in range(self._nr_players):
+            if self._scores[self._player_colors[player]] == 0:
                 not_won_yet = False
         return not_won_yet
 
