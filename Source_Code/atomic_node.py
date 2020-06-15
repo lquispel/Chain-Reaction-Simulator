@@ -30,7 +30,7 @@ class Atomic_Node(minimax_tree.Node):
 ###############################################################
 
     def if_leaf(self):
-        player_scores = self.state.get_scores()
+        player_scores = self.state.get_score_list()
         for score in player_scores:
             if score == 0:
                 return True
@@ -46,7 +46,7 @@ class Atomic_Node(minimax_tree.Node):
         return next_state
 
     def evaluate(self):
-        player_scores = self.state.get_scores()
+        player_scores = self.state.get_score_list()
         if player_scores[1] == 0:
             self.value = minimax_tree.NINF
         elif player_scores[0] == 0:

@@ -54,11 +54,12 @@ class Drawing_Board(Board):
         pygame.time.wait(500)
 
     def _explode(self,cell,color,i,j):
-        self._blow_up(cell, color, i, j)
+        not_won_yet = self._blow_up(cell, color, i, j)
         self._show_explosion(i,j)
-        for (i, j) in cell.neighbors:
-            if self._board[i][j].nr_atoms >= self._board[i][j].nr_neighbours:
-                self._explode(self._board[i][j], color, i, j)
+        if not_won_yet:
+            for (i, j) in cell.neighbors:
+                if self._board[i][j].nr_atoms >= self._board[i][j].nr_neighbours:
+                    self._explode(self._board[i][j], color, i, j)
 
 # display the current board/grid
 def display_current_grid(vibrate=1):
@@ -216,7 +217,7 @@ def re_game():
         vibrate *= -1
         display_current_grid(vibrate)
         if turns > 1:
-            scores = the_grid.get_scores()
+            scores = the_grid.get_score_list()
             loosers = 0
             for i in range(player_count):
                 if scores[i] == 0:

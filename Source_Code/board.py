@@ -31,6 +31,9 @@ class Board():
         self._nr_players = player_count
         self._board = [[] for _ in range(cols)]
         self._moves = []
+        self._scores = dict()
+        for colour in self._player_colors:
+            self._scores[colour] = 0
         for i in range(self._cols):
             for j in range(self._rows):
                 self._board[i].append(Cell(Board.BORDER))
@@ -48,29 +51,40 @@ class Board():
         occ += 1
         self._board[i][j].nr_atoms += 1
         self._board[i][j].color = color
+        self._scores[color] += 1
         m = [i,j]
         self._moves.append(m)
         if occ >= self._board[i][j].nr_neighbours:
-            self._board[i][j].color = Board.BORDER
-            self._board[i][j].nr_atoms -= self._board[i][j].nr_neighbours
-            self._explode(self._board[i][j], color,i,j)
+             self._explode(self._board[i][j], color,i,j)
         return True
 
     def _explode(self,cell,color,i,j):
-        self._blow_up(cell,color,i,j)
-        for (i, j) in cell.neighbors:
-            if self._board[i][j].nr_atoms >= self._board[i][j].nr_neighbours:
-                self._explode(self._board[i][j], color,i,j)
+        if self._blow_up(cell,color,i,j):
+            for (i, j) in cell.neighbors:
+                if self._board[i][j].nr_atoms >= self._board[i][j].nr_neighbours:
+                    self._explode(self._board[i][j], color,i,j)
 
     def _blow_up(self, cell, color, i, j):
-        self._board[i][j].nr_atoms = 0
+        self._board[i][j].nr_atoms -= self._board[i][j].nr_neighbours
         if self._board[i][j].nr_atoms < 1:
             self._board[i][j].color = Board.BORDER
-        for (i, j) in cell.neighbors:
-            self._board[i][j].nr_atoms += 1
-            self._board[i][j].color = color
+        for (n, m) in cell.neighbors:
+            n_color = self._board[n][m].color
+            if n_color == color:
+                self._scores[color] += self._board[n][m].nr_atoms
+            else:
+                self._board[n][m].color = color
+                if n_color != Board.BORDER:
+                    self._scores[n_color] -= self._board[n][m].nr_atoms
+            self._board[n][m].nr_atoms += 1
+        # we want to stop recursion when we have a winner
+        not_won_yet = True
+        for colour in self._player_colors:
+            if self._scores[colour] == 0:
+                not_won_yet = False
+        return not_won_yet
 
-    def get_scores(self):
+    def get_score_list(self):
         scores = []
         for i in range(self._nr_players):
             scores.append(0)
