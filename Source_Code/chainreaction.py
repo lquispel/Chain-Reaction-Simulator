@@ -5,45 +5,33 @@ from ai import Atomic_Node
 from board import Board
 from pgameplayer.minimax_tree import *
 
-# Initializing the Game grid
+# Initialize
 pygame.init()
 sys.setrecursionlimit(7000)
 if not sys.warnoptions:
     import warnings
     warnings.simplefilter("ignore")
-
 width = 420
 height = 420
 grid_blocks = 70
 d = grid_blocks / 2 - 2
 cols = 6 # int(width / grid_blocks)
 rows = 6 # int(height / grid_blocks)
-
 display = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
-
 # Color Schema
 border = Board.BORDER
 background = (21, 67, 96)
-
 red = (231, 76, 60)
 green = (88, 214, 141)
 white = (244, 246, 247)
 violet = (136, 78, 160)
 yellow = (244, 208, 63)
 playerColor = [red, green, violet, yellow]
+# settings
 turns = 0
 font = pygame.font.SysFont("Times New Roman", 30)
-
-
-print("\n\n\t\tWELCOME TO CHAIN REACTION")
-print("Recursion limit: " + str(sys.getrecursionlimit()))
-print("Set recursion limit lower if you experience stack overflows.")
-# player_count = int(input("\n\nEnter number of players between 2 to 4:\t"))
-
-pygame.display.set_caption("Chain Reaction AI - Atomic Intelligence ! " )
 player_count = 2
-
 the_grid = []
 
 class Drawing_Board(Board):
@@ -65,18 +53,16 @@ class Drawing_Board(Board):
             if self._board[i][j].nr_atoms >= self._board[i][j].nr_neighbours:
                 self._explode(self._board[i][j], color, i, j)
 
-#plotting the grid in pygame plot
-def create_grid(currentIndex):
+# display the current board
+def display_current_grid(vibrate=1):
+    display.fill(background)
     r = 0
     c = 0
     for i in range(int(width / grid_blocks)):
         r += grid_blocks
         c += grid_blocks
-        pygame.draw.line(display, players[currentIndex], (c, 0), (c, height))
-        pygame.draw.line(display, players[currentIndex], (0, r), (width, r))
-
-# display the current Situation of the_grid
-def display_current_grid(vibrate=1):
+        pygame.draw.line(display, white, (c, 0), (c, height))
+        pygame.draw.line(display, white, (0, r), (width, r))
     r = -grid_blocks
     c = -grid_blocks
     for i in range(cols):
@@ -129,6 +115,21 @@ def close():
     pygame.quit()
     sys.exit()
 
+# welcome players
+pygame.display.set_caption("Chain Reaction AI - Atomic Intelligence ! " )
+print("\n\n\t\tWELCOME TO ATOMIC INTELLIGENCE FOR CHAIN REACTION")
+print("Recursion limit: " + str(sys.getrecursionlimit()) + ", set lower if you experience stack overflows.\n")
+print("Difficulty levels:")
+print(" 1) Cylon (easy) ")
+print(" 2) Kitt (normal) ")
+print(" 3) Baltar (hard) ")
+print(" 4) HAL (N.B.: turns take very long) ")
+difficulty = int(input("\nEnter difficulty level (1-4):\t"))
+if difficulty < 1 or difficulty > 4:
+    difficulty = 2
+    print(" !!! Invalid difficulty, using 2 instead.")
+
+
 # Main Loop
 def re_game():
     global the_grid, players
@@ -154,12 +155,12 @@ def re_game():
                 if the_grid.move(i,j,playerColor[currentPlayer]):
                     print("\nPlayer Move: " + str(i) + "," + str(j))
                     display_current_grid()
+                    pygame.time.wait(1000)
                     currentPlayer += 1
                     if currentPlayer == 1:
                         if turns > 0:
-                            the_grid.print_board()
                             node = Atomic_Node(the_grid, playerColor)
-                            move, eval = depth_limited_minimax(node, 3, True)
+                            move, eval = depth_limited_minimax(node, difficulty, True)
                             i = move._moves[0][0]
                             j = move._moves[0][1]
                             the_grid.move(i,j,playerColor[currentPlayer])
@@ -178,12 +179,9 @@ def re_game():
                             turns += 1
                 else:
                     print("No valid move !!! ")
-        display.fill(background)
         # Vibrate the Atoms in their Cells
         vibrate *= -1
-        create_grid(currentPlayer)
         display_current_grid(vibrate)
-        pygame.display.update()
         if turns > 1:
             scores = the_grid.get_scores()
             lost_count = 0
