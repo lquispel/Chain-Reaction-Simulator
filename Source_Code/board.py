@@ -1,5 +1,3 @@
-import sys
-
 class Cell():
 
     def __init__(self,border_color):
@@ -39,12 +37,6 @@ class Board():
         for i in range(self._cols):
             for j in range(self._rows):
                 self._board[i][j].set_neighbours(self._board,i,j,self._cols,self._rows)
-
-    def get_cell_color(self,x_pos,y_pos):
-        return self._board[x_pos][y_pos].color
-
-    def get_cell_occupation(self,x_pos,y_pos):
-        return self._board[x_pos][y_pos].nr_atoms
 
     def move(self,i,j,color):
         if i < 0 or j < 0 or i >= self._cols or j >= self._rows:
@@ -89,6 +81,12 @@ class Board():
                         if self._board[i][j].color == self._player_colors[n]:
                             scores[n] += 1
         return scores
+
+    def get_cell_color(self, x_pos, y_pos):
+        return self._board[x_pos][y_pos].color
+
+    def get_cell_occupation(self, x_pos, y_pos):
+        return self._board[x_pos][y_pos].nr_atoms
 
     def print_board(self):
         ret = ""

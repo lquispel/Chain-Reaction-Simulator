@@ -1,6 +1,5 @@
 from pgameplayer import minimax_tree
 from board import Board
-import copy
 
 class Atomic_Node(minimax_tree.Node):
 
@@ -16,10 +15,7 @@ class Atomic_Node(minimax_tree.Node):
         self.best_move = None
         self.player_colors = colors
 
-    def print_board(self):
-        self.state.print_board()
-
-    def copy_board(self,oboard):
+    def _copy_board(self,oboard):
         tboard = Board(self.state._cols,self.state._rows,self.player_colors)
         for i in range(self.state._cols):
             for j in range(self.state._rows):
@@ -27,11 +23,11 @@ class Atomic_Node(minimax_tree.Node):
                 tboard._board[i][j].color = oboard._board[i][j].color
         return tboard
 
-    def get_player_color(self,player):
-        if player:
-            return self.player_colors[1]
-        else:
-            return self.player_colors[0]
+################################################################
+#
+#   Methods called by perfect game player
+#
+###############################################################
 
     def if_leaf(self):
         player_scores = self.state.get_scores()
@@ -44,8 +40,8 @@ class Atomic_Node(minimax_tree.Node):
         next_state = []
         for i in range (self.state._cols):
             for j in range(self.state._rows):
-                new_board = self.copy_board(self.state)
-                if new_board.move(i,j,self.get_player_color(player)):
+                new_board = self._copy_board(self.state)
+                if new_board.move(i,j,self.player_colors[player]):
                     next_state.append(Atomic_Node(new_board,self.player_colors))
         return next_state
 

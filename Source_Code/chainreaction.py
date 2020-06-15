@@ -1,24 +1,19 @@
 import pygame
 import sys
 from math import *
-from ai import Atomic_Node
+from atomic_node import Atomic_Node
 from board import Board
 from pgameplayer.minimax_tree import *
 
-# Initialize
-pygame.init()
-sys.setrecursionlimit(7000)
-if not sys.warnoptions:
-    import warnings
-    warnings.simplefilter("ignore")
+# constants
+AI_PLAYER= 1
+# grid settings
 width = 420
 height = 420
 grid_blocks = 70
 d = grid_blocks / 2 - 2
 cols = 6 # int(width / grid_blocks)
 rows = 6 # int(height / grid_blocks)
-display = pygame.display.set_mode((width, height))
-clock = pygame.time.Clock()
 # Color Schema
 border = Board.BORDER
 background = (21, 67, 96)
@@ -28,12 +23,24 @@ white = (244, 246, 247)
 violet = (136, 78, 160)
 yellow = (244, 208, 63)
 playerColor = [red, green, violet, yellow]
-# settings
-turns = 0
+# Initialize
+pygame.init()
+display = pygame.display.set_mode((width, height))
+clock = pygame.time.Clock()
 font = pygame.font.SysFont("Times New Roman", 30)
-player_count = 2
+sys.setrecursionlimit(7000)
+if not sys.warnoptions:
+    import warnings
+    warnings.simplefilter("ignore")
+# globals
 the_grid = []
+player_count = 2
+players = []
+turns = 0
+ai_search_depth = 1
+lost_count = []
 
+# subclass of Board with added draw functionality
 class Drawing_Board(Board):
 
     def _show_explosion(self,i,j):
@@ -53,7 +60,7 @@ class Drawing_Board(Board):
             if self._board[i][j].nr_atoms >= self._board[i][j].nr_neighbours:
                 self._explode(self._board[i][j], color, i, j)
 
-# display the current board
+# display the current board/grid
 def display_current_grid(vibrate=1):
     display.fill(background)
     r = 0
@@ -90,7 +97,7 @@ def display_current_grid(vibrate=1):
                 pygame.draw.ellipse(display, the_grid.get_cell_color(i,j), (x - vibrate, y, d, d))
     pygame.display.update()
 
-# GAME OVER
+# game over, show winning player
 def gameOver(playerIndex):
     while True:
         for event in pygame.event.get():
@@ -113,32 +120,64 @@ def close():
     pygame.quit()
     sys.exit()
 
-# welcome players
-pygame.display.set_caption("Chain Reaction AI - Atomic Intelligence ! " )
-print("\n\n\t\tWELCOME TO ATOMIC INTELLIGENCE FOR CHAIN REACTION")
-print("Recursion limit: " + str(sys.getrecursionlimit()) + ", set lower if you experience stack overflows.\n")
-print("Difficulty levels:")
-print(" 1) Cylon (easy) ")
-print(" 2) Kitt (normal) ")
-print(" 3) Baltar (hard) ")
-print(" 4) HAL (N.B.: turns take very long) ")
-difficulty = int(input("\nEnter difficulty level (1-4):\t"))
-if difficulty < 1 or difficulty > 4:
-    difficulty = 2
-    print(" !!! Invalid difficulty, using 2 instead.")
+# welcome players and select mode
+def welcome_players():
+    global player_count
+    pygame.display.set_caption("Chain Reaction" )
+    print("\n\n\t\tWELCOME TO CHAIN REACTION")
+    player_count = int(input("\nEnter number of players (1-4). Enter 1 to play against AI:\t"))
+    if player_count == 1:
+        difficulty = setup_ai()
+    return player_count
 
+# get ai difficulty level from player
+def setup_ai():
+    global ai_search_depth
+    print("\n\n\t\tWELCOME AGAIN, THIS IS ATOMIC INTELLIGENCE")
+    print("Recursion limit: " + str(sys.getrecursionlimit()) + ", set lower if you experience stack overflows.")
+    print("Difficulty levels:")
+    print(" 1) Cylon (easy) ")
+    print(" 2) Kitt (normal) ")
+    print(" 3) Baltar (hard) ")
+    print(" 4) HAL (N.B.: turns take very long) ")
+    ai_search_depth = int(input("\nEnter difficulty level (1-4):\t"))
+    if ai_search_depth < 1 or ai_search_depth > 4:
+        ai_search_depth = 2
+        print(" !!! Invalid difficulty, using 2 instead.")
+    return ai_search_depth
+
+# let the ai do its thing
+def ai_move():
+    if turns > 0:
+        node = Atomic_Node(the_grid, playerColor)
+        move, eval = depth_limited_minimax(node, ai_search_depth, True)
+        i = move._moves[0][0]
+        j = move._moves[0][1]
+        the_grid.move(i, j, playerColor[AI_PLAYER])
+    else:
+        # start at a corner
+        if not the_grid.move(0, 0, playerColor[AI_PLAYER]):
+            the_grid.move(cols - 1, rows - 1, playerColor[AI_PLAYER])
 
 # Main Loop
 def re_game():
-    global the_grid, players
-    players = []
-    for i in range(player_count):
-        players.append(playerColor[i])
-    the_grid = Drawing_Board(cols,rows,playerColor,player_count)
+    global the_grid, players, player_count, turns, lost_count
+    if player_count == 1:
+        # need to give te ai a player slot
+        the_grid = Drawing_Board(cols, rows, playerColor, 2)
+        for i in range(2):
+            players.append(playerColor[i])
+            lost_count.append(0)
+    else:
+        the_grid = Drawing_Board(cols, rows, playerColor, player_count)
+        for i in range(player_count):
+            players.append(playerColor[i])
+            lost_count.append(0)
+    turns = 0
+    # start loop
     loop = True
     currentPlayer = 0
     vibrate = .5
-    turns = 0
     while loop:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -152,26 +191,13 @@ def re_game():
                 j = int(y / grid_blocks)
                 if the_grid.move(i,j,playerColor[currentPlayer]):
                     display_current_grid()
-                    print("\nPlayer Move: " + str(i) + "," + str(j))
-                    pygame.time.wait(2000)
                     currentPlayer += 1
-                    if currentPlayer == 1:
-                        if turns > 0:
-                            node = Atomic_Node(the_grid, playerColor)
-                            move, eval = depth_limited_minimax(node, difficulty, True)
-                            i = move._moves[0][0]
-                            j = move._moves[0][1]
-                            the_grid.move(i,j,playerColor[currentPlayer])
+                    pygame.time.wait(2000)
+                    if player_count == 1:
+                        if currentPlayer == AI_PLAYER:
+                            ai_move()
                             currentPlayer += 1
-                            print("AI Move: " + str(i) + "," + str(j) + "  value:" + str(eval))
-                        else:
-                            if not the_grid.move(0,0,playerColor[currentPlayer]):
-                                the_grid.move(cols-1,rows-1,playerColor[currentPlayer])
-                                print("AI Move: " + str(cols-1) + "," + str(rows-1))
-                            else:
-                                print("AI Move: 0,0")
-                            currentPlayer += 1
-                        if currentPlayer >= player_count:
+                    if currentPlayer >= player_count:
                             currentPlayer = 0
                             turns += 1
                 else:
@@ -181,12 +207,26 @@ def re_game():
         display_current_grid(vibrate)
         if turns > 1:
             scores = the_grid.get_scores()
-            lost_count = 0
-            for i in range(len(scores)):
+            loosers = 0
+            for i in range(player_count):
                 if scores[i] == 0:
-                    lost_count += 1
-                    print("Player " + str(i) + " lost !!!")
-            if lost_count == player_count-1:
-                gameOver(i)
+                    lost_count[i] == 1
+                    loosers += 1
+            if player_count == 1:
+                if lost_count[0] == 1:
+                    gameOver(1)
+                if lost_count[1] == 1:
+                    gameOver(0)
+            else:
+                if loosers == player_count-1:
+                    for i in range(player_count):
+                        if lost_count[i] != 1:
+                            gameOver(i)
         clock.tick(20)
-re_game()
+
+def main():
+    welcome_players()
+    re_game()
+
+if __name__ == "__main__":
+    main()
