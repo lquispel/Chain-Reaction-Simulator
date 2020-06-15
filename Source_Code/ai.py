@@ -9,16 +9,12 @@ class Atomic_Node(minimax_tree.Node):
         self.state._moves = board._moves
         for i in range(board._cols):
             for j in range(board._rows):
-                self.state.set_cell_occupation(i,j,board.get_cell_occupation(i,j))
-                self.state.set_cell_color(i,j,board.get_cell_color(i,j))
+                self.state._board[i][j].nr_atoms = board._board[i][j].nr_atoms
+                self.state._board[i][j].color = board._board[i][j].color
         self.player = True
         self.value = None
         self.best_move = None
         self.player_colors = colors
-        self.difficulty = difficulty
-
-    def set_difficulty(self,difficulty):
-        self.difficulty = difficulty
 
     def print_board(self):
         self.state.print_board()
@@ -27,8 +23,8 @@ class Atomic_Node(minimax_tree.Node):
         tboard = Board(self.state._cols,self.state._rows,self.player_colors)
         for i in range(self.state._cols):
             for j in range(self.state._rows):
-                tboard.set_cell_occupation(i,j,oboard.get_cell_occupation(i,j))
-                tboard.set_cell_color(i,j,oboard.get_cell_color(i,j))
+                tboard._board[i][j].nr_atoms = oboard._board[i][j].nr_atoms
+                tboard._board[i][j].color = oboard._board[i][j].color
         return tboard
 
     def get_player_color(self,player):
@@ -60,7 +56,5 @@ class Atomic_Node(minimax_tree.Node):
         elif player_scores[0] == 0:
             self.value = minimax_tree.PINF
         else:
-            if not self.difficulty:
-                # just count the atoms.
-                self.value = player_scores[1]
+            self.value = player_scores[1]
         return self.value

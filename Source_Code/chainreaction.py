@@ -70,9 +70,7 @@ def display_current_grid(vibrate=1):
         c = -grid_blocks
         for j in range(rows):
             c += grid_blocks
-            if the_grid.get_cell_occupation(i,j) == 0:
-                the_grid.set_cell_color(i,j,border)
-            elif the_grid.get_cell_occupation(i,j) == 1:
+            if the_grid.get_cell_occupation(i,j) == 1:
                 pygame.draw.ellipse(display, the_grid.get_cell_color(i,j),
                                     (r + grid_blocks / 2 - d / 2 + vibrate, c + grid_blocks / 2 - d / 2, d, d))
             elif the_grid.get_cell_occupation(i,j) == 2:
@@ -153,9 +151,9 @@ def re_game():
                 i = int(x / grid_blocks)
                 j = int(y / grid_blocks)
                 if the_grid.move(i,j,playerColor[currentPlayer]):
-                    print("\nPlayer Move: " + str(i) + "," + str(j))
                     display_current_grid()
-                    pygame.time.wait(1000)
+                    print("\nPlayer Move: " + str(i) + "," + str(j))
+                    pygame.time.wait(2000)
                     currentPlayer += 1
                     if currentPlayer == 1:
                         if turns > 0:
@@ -166,7 +164,6 @@ def re_game():
                             the_grid.move(i,j,playerColor[currentPlayer])
                             currentPlayer += 1
                             print("AI Move: " + str(i) + "," + str(j) + "  value:" + str(eval))
-                            move.print_board()
                         else:
                             if not the_grid.move(0,0,playerColor[currentPlayer]):
                                 the_grid.move(cols-1,rows-1,playerColor[currentPlayer])

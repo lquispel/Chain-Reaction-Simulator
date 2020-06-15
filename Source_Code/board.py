@@ -43,14 +43,8 @@ class Board():
     def get_cell_color(self,x_pos,y_pos):
         return self._board[x_pos][y_pos].color
 
-    def set_cell_color(self, x_pos, y_pos,color):
-        self._board[x_pos][y_pos].color = color
-
     def get_cell_occupation(self,x_pos,y_pos):
         return self._board[x_pos][y_pos].nr_atoms
-
-    def set_cell_occupation(self,x_pos,y_pos,occupation):
-        self._board[x_pos][y_pos].nr_atoms = occupation
 
     def move(self,i,j,color):
         if i < 0 or j < 0 or i >= self._cols or j >= self._rows:
@@ -83,7 +77,6 @@ class Board():
         for (i, j) in cell.neighbors:
             self._board[i][j].nr_atoms += 1
             self._board[i][j].color = color
-
 
     def get_scores(self):
         scores = []
